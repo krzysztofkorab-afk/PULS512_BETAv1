@@ -19,7 +19,8 @@ class SettingsStore(context: Context) {
             eveningHour = prefs.getInt("evening_hour", 19),
             eveningMinute = prefs.getInt("evening_minute", 0),
             categories = categories,
-            briefingLength = prefs.getInt("briefing_length", 6)
+            briefingLength = prefs.getInt("briefing_length", 6),
+            verifiedOnly = prefs.getBoolean("verified_only", true)
         )
     }
 
@@ -33,6 +34,7 @@ class SettingsStore(context: Context) {
             .putInt("evening_minute", settings.eveningMinute)
             .putStringSet("categories", settings.categories.map { it.name }.toSet())
             .putInt("briefing_length", settings.briefingLength)
+            .putBoolean("verified_only", settings.verifiedOnly)
             .apply()
     }
 }

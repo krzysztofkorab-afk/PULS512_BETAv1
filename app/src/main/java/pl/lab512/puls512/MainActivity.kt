@@ -77,6 +77,7 @@ import pl.lab512.puls512.data.NewsCategory
 import pl.lab512.puls512.data.NewsRepository
 import pl.lab512.puls512.data.SettingsStore
 import pl.lab512.puls512.data.UserSettings
+import pl.lab512.puls512.data.VerificationStatus
 import pl.lab512.puls512.feedback.VoiceRecorder
 import pl.lab512.puls512.schedule.AlarmScheduler
 import pl.lab512.puls512.ui.Border
@@ -193,9 +194,9 @@ private fun BriefScreen(settings: UserSettings, modifier: Modifier = Modifier) {
         onDispose { engine.stop(); engine.shutdown() }
     }
 
-    LaunchedEffect(refreshToken, settings.categories, settings.briefingLength) {
+    LaunchedEffect(refreshToken, settings.categories, settings.briefingLength, settings.verifiedOnly) {
         loading = true
-        articles = withContext(Dispatchers.IO) { repository.fetchBriefing(settings.categories, settings.briefingLength) }
+        articles = withContext(Dispatchers.IO) { repository.fetchBriefing(settings.categories, settings.briefingLength, settings.verifiedOnly) }
         loading = false
     }
 
@@ -277,15 +278,44 @@ private fun ArticleCard(article: Article) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(article.category.label.uppercase(Locale("pl")), color = Ice, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                 Spacer(Modifier.weight(1f))
-                Text(article.source, color = Muted, fontSize = 11.sp)
+                Box(
+                    Modifier.clip(RoundedCornerShape(20.dp))
+                        .background(verificationColor(article.verificationStatus).copy(alpha = 0.14f))
+                        .padding(horizontal = 9.dp, vertical = 5.dp)
+                ) {
+                    Text("●  ${article.verificationStatus.label}", color = verificationColor(article.verificationStatus), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                }
             }
             Spacer(Modifier.height(10.dp))
             Text(article.title, fontWeight = FontWeight.Bold, fontSize = 18.sp, lineHeight = 23.sp)
             Spacer(Modifier.height(8.dp))
             Text(article.summary, color = Muted, fontSize = 14.sp, lineHeight = 20.sp, maxLines = 4, overflow = TextOverflow.Ellipsis)
-            if (article.url.isNotBlank()) {
+            if (article.whyItMatters.isNotBlank()) {
                 Spacer(Modifier.height(12.dp))
-                Text("Czytaj w źródle  →", color = Mint, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(SurfaceRaised).padding(12.dp)) {
+                    Column {
+                        Text("DLACZEGO TO WAŻNE", color = Ice, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                        Spacer(Modifier.height(4.dp))
+                        Text(article.whyItMatters, color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp, lineHeight = 17.sp)
+                    }
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            Text(article.verificationReason, color = verificationColor(article.verificationStatus), fontSize = 11.sp, lineHeight = 16.sp)
+            if (article.sources.isNotEmpty()) {
+                Spacer(Modifier.height(12.dp))
+                Text("ŹRÓDŁA (${article.sources.size})", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                article.sources.take(3).forEach { source ->
+                    Text(
+                        "${if (source.primary) "◆" else "↗"}  ${source.name}",
+                        color = if (source.primary) Ice else Mint,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 7.dp).clickable(enabled = source.url.isNotBlank()) {
+                            runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(source.url))) }
+                        }
+                    )
+                }
             }
         }
     }
@@ -327,6 +357,19 @@ private fun PlanScreen(settings: UserSettings, onChange: (UserSettings) -> Unit,
                                 if (updated.isNotEmpty()) onChange(settings.copy(categories = updated))
                             }
                         }
+                    }
+                }
+                Spacer(Modifier.height(28.dp))
+                SectionTitle("FILTR WIARYGODNOŚCI", "W trybie ścisłym ukrywamy wiadomości bez mocnego potwierdzenia.")
+                Spacer(Modifier.height(12.dp))
+                Card(colors = CardDefaults.cardColors(containerColor = Surface), shape = RoundedCornerShape(20.dp)) {
+                    Row(Modifier.fillMaxWidth().padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("Tylko potwierdzone", fontWeight = FontWeight.Bold)
+                            Spacer(Modifier.height(4.dp))
+                            Text("Oficjalne dane albo zgodność co najmniej dwóch niezależnych źródeł.", color = Muted, fontSize = 12.sp, lineHeight = 17.sp)
+                        }
+                        Switch(checked = settings.verifiedOnly, onCheckedChange = { onChange(settings.copy(verifiedOnly = it)) })
                     }
                 }
                 Spacer(Modifier.height(28.dp))
@@ -519,7 +562,13 @@ private fun estimateMinutes(articles: List<Article>): Int = (articles.size / 2 +
 private fun briefingText(articles: List<Article>): String = buildString {
     append("Oto najważniejsze informacje przygotowane przez PULS 512. ")
     articles.forEachIndexed { index, article ->
-        append("Wiadomość ${index + 1}. ${article.title}. ${article.summary}. ")
+        append("Wiadomość ${index + 1}. Status: ${article.verificationStatus.label}. ${article.title}. ${article.summary}. ${article.whyItMatters}. ")
     }
     append("To wszystko w tym briefingu.")
+}
+
+private fun verificationColor(status: VerificationStatus): Color = when (status) {
+    VerificationStatus.CONFIRMED -> Mint
+    VerificationStatus.OFFICIAL_SOURCE -> Ice
+    VerificationStatus.DEVELOPING -> Coral
 }

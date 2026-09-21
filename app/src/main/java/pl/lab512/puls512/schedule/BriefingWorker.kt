@@ -23,7 +23,7 @@ class BriefingWorker(context: Context, params: WorkerParameters) : Worker(contex
         val kind = inputData.getString(AlarmScheduler.EXTRA_KIND) ?: AlarmScheduler.MORNING
         return runCatching {
             val settings = SettingsStore(applicationContext).load()
-            val articles = NewsRepository().fetchBriefing(settings.categories, settings.briefingLength)
+            val articles = NewsRepository().fetchBriefing(settings.categories, settings.briefingLength, settings.verifiedOnly)
             showNotification(kind, articles.firstOrNull()?.title ?: "Twój briefing jest gotowy")
             Result.success()
         }.getOrElse { Result.retry() }
