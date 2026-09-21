@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071018"/><stop offset="1" stop-color="#102633"/></linearGradient>
+    <linearGradient id="ice" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#73DBFF"/><stop offset="1" stop-color="#69E1BA"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000" flood-opacity=".55"/></filter>
+    <style>
+      .font{font-family:Inter,Arial,sans-serif}.white{fill:#F4FAFD}.muted{fill:#93A7B4}.ice{fill:#73DBFF}.mint{fill:#69E1BA}.bold{font-weight:700}.black{font-weight:900}
+    </style>
+  </defs>
+  <rect width="1400" height="900" fill="url(#bg)"/>
+  <circle cx="130" cy="120" r="240" fill="#73DBFF" opacity=".035"/><circle cx="1280" cy="760" r="320" fill="#69E1BA" opacity=".035"/>
+  <text x="70" y="74" class="font white black" font-size="32" letter-spacing="3">PULS 512</text>
+  <text x="70" y="106" class="font muted" font-size="16">Twój świat. Dwa razy dziennie. • Beta UI</text>
+
+  <!-- phone 1 -->
+  <g transform="translate(75 145)">
+    <rect width="370" height="680" rx="42" fill="#050B10" stroke="#294252" stroke-width="2"/>
+    <rect x="15" y="15" width="340" height="650" rx="31" fill="#071018"/>
+    <rect x="145" y="26" width="80" height="7" rx="4" fill="#243846"/>
+    <rect x="34" y="58" width="42" height="42" rx="13" fill="url(#ice)"/>
+    <text x="49" y="87" class="font black" font-size="26" fill="#071018">ϟ</text>
+    <text x="90" y="76" class="font white black" font-size="17" letter-spacing="2">PULS 512</text>
+    <text x="90" y="96" class="font muted" font-size="10">Twój świat. Dwa razy dziennie.</text>
+    <circle cx="304" cy="76" r="4" fill="#69E1BA"/><text x="314" y="80" class="font mint bold" font-size="9">BETA</text>
+    <text x="34" y="140" class="font muted" font-size="12">Dzień dobry</text>
+    <text x="34" y="170" class="font white black" font-size="24">Najważniejsze.</text><text x="34" y="198" class="font white black" font-size="24">Bez szumu.</text>
+    <rect x="30" y="221" width="310" height="145" rx="22" fill="#132431"/>
+    <circle cx="51" cy="247" r="5" fill="#69E1BA"/><text x="64" y="251" class="font mint bold" font-size="12">Briefing gotowy</text><text x="297" y="251" class="font muted" font-size="11">07:02</text>
+    <text x="48" y="282" class="font muted" font-size="12">6 informacji • około 4 min słuchania</text>
+    <rect x="46" y="308" width="158" height="38" rx="18" fill="#73DBFF"/><text x="78" y="332" class="font black" font-size="12" fill="#071018">▶  ODSŁUCHAJ</text>
+    <rect x="214" y="308" width="108" height="38" rx="18" fill="none" stroke="#365362"/><text x="238" y="332" class="font white bold" font-size="11">ODŚWIEŻ</text>
+    <text x="34" y="398" class="font ice bold" font-size="10" letter-spacing="2">DZISIAJ</text>
+    <rect x="30" y="416" width="310" height="156" rx="19" fill="#0D1923"/>
+    <text x="48" y="442" class="font ice bold" font-size="9" letter-spacing="1">POLSKA</text><text x="280" y="442" class="font muted" font-size="9">PAP</text>
+    <text x="48" y="470" class="font white bold" font-size="15">Najważniejszy temat dnia</text>
+    <text x="48" y="493" class="font white bold" font-size="15">w krótkim podsumowaniu</text>
+    <text x="48" y="521" class="font muted" font-size="11">Dwa zdania faktów, bez zbędnego szumu</text>
+    <text x="48" y="540" class="font muted" font-size="11">i z bezpośrednim linkiem do źródła.</text>
+    <text x="48" y="559" class="font mint bold" font-size="10">Czytaj w źródle  →</text>
+    <rect x="15" y="603" width="340" height="62" rx="0" fill="#0D1923"/>
+    <text x="68" y="628" class="font ice" font-size="14">●</text><text x="57" y="650" class="font ice bold" font-size="10">Brief</text>
+    <text x="182" y="628" class="font muted" font-size="16">◷</text><text x="172" y="650" class="font muted" font-size="10">Plan</text>
+    <text x="292" y="628" class="font muted" font-size="15">✦</text><text x="278" y="650" class="font muted" font-size="10">Uwagi</text>
+  </g>
+
+  <!-- phone 2 -->
+  <g transform="translate(515 145)">
+    <rect width="370" height="680" rx="42" fill="#050B10" stroke="#294252" stroke-width="2"/>
+    <rect x="15" y="15" width="340" height="650" rx="31" fill="#071018"/>
+    <rect x="145" y="26" width="80" height="7" rx="4" fill="#243846"/>
+    <text x="34" y="78" class="font white black" font-size="18" letter-spacing="2">PULS 512</text><text x="288" y="78" class="font mint bold" font-size="9">BETA</text>
+    <text x="34" y="125" class="font white black" font-size="25">Twój rytm dnia</text><text x="34" y="149" class="font muted" font-size="12">Wybierz, kiedy i o czym chcesz wiedzieć.</text>
+    <rect x="30" y="172" width="310" height="102" rx="19" fill="#0D1923"/>
+    <text x="48" y="199" class="font ice bold" font-size="10" letter-spacing="1.5">PORANNY PULS</text><text x="48" y="220" class="font muted" font-size="10">Dobry start bez przewijania portali</text>
+    <rect x="270" y="188" width="48" height="25" rx="13" fill="#164E50"/><circle cx="305" cy="200.5" r="10" fill="#69E1BA"/>
+    <rect x="262" y="226" width="62" height="31" rx="10" fill="#132431"/><text x="274" y="247" class="font mint black" font-size="15">07:00</text>
+    <rect x="30" y="286" width="310" height="102" rx="19" fill="#0D1923"/>
+    <text x="48" y="313" class="font ice bold" font-size="10" letter-spacing="1.5">WIECZORNY PULS</text><text x="48" y="334" class="font muted" font-size="10">Najważniejsze wydarzenia całego dnia</text>
+    <rect x="270" y="302" width="48" height="25" rx="13" fill="#164E50"/><circle cx="305" cy="314.5" r="10" fill="#69E1BA"/>
+    <rect x="262" y="340" width="62" height="31" rx="10" fill="#132431"/><text x="274" y="361" class="font mint black" font-size="15">19:00</text>
+    <text x="34" y="426" class="font ice bold" font-size="10" letter-spacing="1.5">ZAKRES WIADOMOŚCI</text>
+    <g class="font" font-size="11"><rect x="30" y="443" width="94" height="35" rx="17" fill="#123849" stroke="#73DBFF"/><text x="48" y="465" class="ice bold">✓  Polska</text><rect x="132" y="443" width="94" height="35" rx="17" fill="#123849" stroke="#73DBFF"/><text x="148" y="465" class="ice bold">✓  Europa</text><rect x="234" y="443" width="106" height="35" rx="17" fill="#123849" stroke="#73DBFF"/><text x="249" y="465" class="ice bold">✓  Świat</text><rect x="30" y="487" width="104" height="35" rx="17" fill="#123849" stroke="#73DBFF"/><text x="46" y="509" class="ice bold">✓  Biznes</text><rect x="142" y="487" width="130" height="35" rx="17" fill="#0D1923" stroke="#294252"/><text x="160" y="509" class="muted">+  Technologia</text></g>
+    <text x="34" y="561" class="font ice bold" font-size="10" letter-spacing="1.5">DŁUGOŚĆ BRIEFINGU</text>
+    <rect x="30" y="576" width="310" height="62" rx="18" fill="#0D1923"/><text x="48" y="603" class="font white bold" font-size="12">6 informacji</text><text x="261" y="603" class="font mint" font-size="11">około 4 min</text><rect x="49" y="619" width="270" height="3" rx="2" fill="#294252"/><rect x="49" y="619" width="135" height="3" rx="2" fill="#73DBFF"/><circle cx="184" cy="620" r="7" fill="#73DBFF"/>
+  </g>
+
+  <!-- phone 3 -->
+  <g transform="translate(955 145)">
+    <rect width="370" height="680" rx="42" fill="#050B10" stroke="#294252" stroke-width="2"/>
+    <rect x="15" y="15" width="340" height="650" rx="31" fill="#071018"/>
+    <rect x="145" y="26" width="80" height="7" rx="4" fill="#243846"/>
+    <text x="34" y="78" class="font white black" font-size="18" letter-spacing="2">PULS 512</text><text x="288" y="78" class="font mint bold" font-size="9">BETA</text>
+    <text x="34" y="125" class="font white black" font-size="25">Co możemy poprawić?</text>
+    <text x="34" y="150" class="font muted" font-size="11">Napisz albo nagraj uwagę. Trafi ona</text><text x="34" y="167" class="font muted" font-size="11">do zespołu Lab512.</text>
+    <rect x="30" y="194" width="310" height="145" rx="18" fill="#0D1923" stroke="#294252"/>
+    <text x="47" y="219" class="font ice" font-size="10">TWOJA UWAGA</text><text x="47" y="250" class="font muted" font-size="11">Np. za dużo polityki, chcę więcej</text><text x="47" y="269" class="font muted" font-size="11">wiadomości lokalnych…</text>
+    <rect x="30" y="352" width="310" height="44" rx="20" fill="#73DBFF"/><text x="101" y="379" class="font black" font-size="12" fill="#071018">WYŚLIJ UWAGĘ TEKSTOWĄ</text>
+    <line x1="30" y1="430" x2="340" y2="430" stroke="#213846"/>
+    <text x="34" y="465" class="font ice bold" font-size="10" letter-spacing="1.5">WIADOMOŚĆ GŁOSOWA</text>
+    <rect x="30" y="482" width="310" height="144" rx="20" fill="#0D1923"/>
+    <circle cx="185" cy="535" r="34" fill="#132431"/><circle cx="185" cy="535" r="10" fill="#FF8D78"/>
+    <text x="132" y="587" class="font white bold" font-size="12">Dotknij, aby nagrać</text>
+    <text x="61" y="650" class="font muted" font-size="9">Ty zatwierdzasz wysłanie wiadomości i załącznika.</text>
+  </g>
+</svg>
