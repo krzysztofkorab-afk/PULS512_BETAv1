@@ -12,8 +12,8 @@ android {
         applicationId = "pl.lab512.puls512"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0-beta"
+        versionCode = 3
+        versionName = "1.0.0-beta"
 
         val backendUrl = providers.gradleProperty("PULS512_API_BASE_URL").orElse("").get()
         buildConfigField("String", "API_BASE_URL", "\"${backendUrl.replace("\"", "\\\"")}\"")
@@ -46,5 +46,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.work:work-runtime-ktx:2.10.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+    implementation("com.google.mlkit:language-id:17.0.6")
+    implementation("com.google.mlkit:translate:17.0.3")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

@@ -23,6 +23,10 @@ test("confirms a story supported by two publishers", () => {
   ]);
   assert.equal(clusters[0].verificationStatus, "CONFIRMED");
   assert.equal(clusters[0].sources.length, 2);
+  assert.equal(clusters[0].sources[0].url, "https://a.example");
+  assert.equal(clusters[0].sources[0].originalTitle, "European bank announces interest rate decision");
+  assert.equal(clusters[0].sources[1].url, "https://b.example");
+  assert.equal(clusters[0].sources[1].originalTitle, "Interest rate decision announced by European bank");
 });
 
 test("marks one official statement without independent confirmation", () => {

@@ -1,6 +1,6 @@
 {
   "name": "puls512-verification-backend",
-  "version": "0.2.0",
+  "version": "1.0.0-beta",
   "private": true,
   "type": "module",
   "engines": { "node": ">=20" },

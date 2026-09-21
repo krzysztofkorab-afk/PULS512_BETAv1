@@ -13,7 +13,7 @@ class BackendClient(private val baseUrl: String) {
             connectTimeout = 8_000
             readTimeout = 20_000
             setRequestProperty("Accept", "application/json")
-            setRequestProperty("User-Agent", "PULS512-Android/0.2")
+            setRequestProperty("User-Agent", "PULS512-Android/1.0")
         }
         return try {
             if (connection.responseCode !in 200..299) error("Backend HTTP ${connection.responseCode}")
@@ -26,7 +26,14 @@ class BackendClient(private val baseUrl: String) {
                     val sources = buildList {
                         if (sourcesJson != null) for (sourceIndex in 0 until sourcesJson.length()) {
                             val source = sourcesJson.getJSONObject(sourceIndex)
-                            add(SourceRef(source.getString("name"), source.getString("url"), source.optBoolean("primary", false)))
+                            add(
+                                SourceRef(
+                                    source.getString("name"),
+                                    source.getString("url"),
+                                    source.optBoolean("primary", false),
+                                    source.optString("originalTitle", "")
+                                )
+                            )
                         }
                     }
                     val category = NewsCategory.entries.firstOrNull { it.name == item.optString("category") } ?: NewsCategory.SWIAT
@@ -45,7 +52,9 @@ class BackendClient(private val baseUrl: String) {
                             sources = sources,
                             verificationStatus = status,
                             verificationReason = item.optString("verificationReason", "Ocena wykonana przez silnik PULS 512."),
-                            whyItMatters = item.optString("whyItMatters", "")
+                            whyItMatters = item.optString("whyItMatters", ""),
+                            originalTitle = item.optString("originalTitle", item.getString("title")),
+                            originalSummary = item.optString("originalSummary", item.getString("summary"))
                         )
                     )
                 }

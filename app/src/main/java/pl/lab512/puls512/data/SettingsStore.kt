@@ -20,7 +20,11 @@ class SettingsStore(context: Context) {
             eveningMinute = prefs.getInt("evening_minute", 0),
             categories = categories,
             briefingLength = prefs.getInt("briefing_length", 6),
-            verifiedOnly = prefs.getBoolean("verified_only", true)
+            verifiedOnly = prefs.getBoolean("verified_only", true),
+            autoReadEnabled = prefs.getBoolean("auto_read_enabled", false),
+            narratorProfile = runCatching {
+                NarratorProfile.valueOf(prefs.getString("narrator_profile", NarratorProfile.ANNA.name).orEmpty())
+            }.getOrDefault(NarratorProfile.ANNA)
         )
     }
 
@@ -35,6 +39,8 @@ class SettingsStore(context: Context) {
             .putStringSet("categories", settings.categories.map { it.name }.toSet())
             .putInt("briefing_length", settings.briefingLength)
             .putBoolean("verified_only", settings.verifiedOnly)
+            .putBoolean("auto_read_enabled", settings.autoReadEnabled)
+            .putString("narrator_profile", settings.narratorProfile.name)
             .apply()
     }
 }

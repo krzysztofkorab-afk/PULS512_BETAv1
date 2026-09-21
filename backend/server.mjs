@@ -77,7 +77,7 @@ export function parseFeed(xml, source) {
 
 async function fetchSource(source) {
   const response = await fetch(source.url, {
-    headers: { "user-agent": "PULS512-Backend/0.2 (+https://lab512.pl)", accept: "application/rss+xml, application/atom+xml, application/xml, text/xml" },
+    headers: { "user-agent": "PULS512-Backend/1.0 (+https://lab512.pl)", accept: "application/rss+xml, application/atom+xml, application/xml, text/xml" },
     signal: AbortSignal.timeout(9_000),
     redirect: "follow"
   });
@@ -115,7 +115,8 @@ export function clusterArticles(articles) {
     const sources = [...new Map(related.map((article) => [article.source, {
       name: article.source,
       url: article.url,
-      primary: article.kind === "OFFICIAL_DATA" || article.kind === "OFFICIAL_STATEMENT"
+      primary: article.kind === "OFFICIAL_DATA" || article.kind === "OFFICIAL_STATEMENT",
+      originalTitle: article.title
     }])).values()];
     const kinds = new Set(related.map((article) => article.kind));
     const verificationStatus = kinds.has("OFFICIAL_DATA") || sources.length >= 2
@@ -238,6 +239,8 @@ async function buildBriefing(categories, limit, verifiedOnly) {
     return {
       title: summary.title,
       summary: summary.summary,
+      originalTitle: cluster.articles[0]?.title || summary.title,
+      originalSummary: cluster.articles[0]?.description || summary.summary,
       whyItMatters: summary.whyItMatters,
       category: cluster.category,
       publishedAt: cluster.publishedAt,
@@ -277,7 +280,7 @@ function json(res, status, body) {
 export async function handleRequest(req, res) {
   const requestUrl = new URL(req.url, `http://${req.headers.host || "localhost"}`);
   if (!rateAllowed(req.socket.remoteAddress || "unknown")) return json(res, 429, { error: "rate_limit" });
-  if (requestUrl.pathname === "/health") return json(res, 200, { ok: true, version: "0.2.0", sources: SOURCES.length });
+  if (requestUrl.pathname === "/health") return json(res, 200, { ok: true, version: "1.0.0-beta", sources: SOURCES.length });
   if (requestUrl.pathname === "/sources") return json(res, 200, { sources: SOURCES.map(({ name, category, kind }) => ({ name, category, kind })) });
   if (requestUrl.pathname !== "/briefing") return json(res, 404, { error: "not_found" });
 

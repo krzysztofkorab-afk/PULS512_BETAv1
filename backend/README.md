@@ -10,6 +10,8 @@ Backend pobiera kanały źródłowe, grupuje publikacje dotyczące tego samego w
 
 Model AI nie wybiera źródeł, nie zmienia linków i nie ustala poziomu wiarygodności. Dostaje wyłącznie teksty z klastrów zaakceptowanych wcześniej przez kod.
 
+Każdy element odpowiedzi zawiera także `sources[].url` oraz `sources[].originalTitle`. Aplikacja pokazuje je jako klikalne odnośniki do oryginalnych publikacji, niezależnie od polskiego tłumaczenia.
+
 ## Uruchomienie
 
 Wymagany jest Node.js 20 lub nowszy.

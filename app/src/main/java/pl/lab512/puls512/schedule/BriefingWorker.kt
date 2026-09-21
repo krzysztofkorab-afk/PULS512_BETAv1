@@ -17,6 +17,7 @@ import pl.lab512.puls512.MainActivity
 import pl.lab512.puls512.R
 import pl.lab512.puls512.data.NewsRepository
 import pl.lab512.puls512.data.SettingsStore
+import pl.lab512.puls512.speech.PolishSpeech
 
 class BriefingWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
     override fun doWork(): Result {
@@ -25,6 +26,13 @@ class BriefingWorker(context: Context, params: WorkerParameters) : Worker(contex
             val settings = SettingsStore(applicationContext).load()
             val articles = NewsRepository().fetchBriefing(settings.categories, settings.briefingLength, settings.verifiedOnly)
             showNotification(kind, articles.firstOrNull()?.title ?: "Twój briefing jest gotowy")
+            if (settings.autoReadEnabled && articles.isNotEmpty()) {
+                PolishSpeech.speakBlocking(
+                    applicationContext,
+                    PolishSpeech.briefingText(articles),
+                    settings.narratorProfile
+                )
+            }
             Result.success()
         }.getOrElse { Result.retry() }
     }

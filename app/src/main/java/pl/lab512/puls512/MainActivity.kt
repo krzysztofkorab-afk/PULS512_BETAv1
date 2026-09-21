@@ -75,11 +75,13 @@ import kotlinx.coroutines.withContext
 import pl.lab512.puls512.data.Article
 import pl.lab512.puls512.data.NewsCategory
 import pl.lab512.puls512.data.NewsRepository
+import pl.lab512.puls512.data.NarratorProfile
 import pl.lab512.puls512.data.SettingsStore
 import pl.lab512.puls512.data.UserSettings
 import pl.lab512.puls512.data.VerificationStatus
 import pl.lab512.puls512.feedback.VoiceRecorder
 import pl.lab512.puls512.schedule.AlarmScheduler
+import pl.lab512.puls512.speech.PolishSpeech
 import pl.lab512.puls512.ui.Border
 import pl.lab512.puls512.ui.Coral
 import pl.lab512.puls512.ui.Ice
@@ -186,9 +188,10 @@ private fun BriefScreen(settings: UserSettings, modifier: Modifier = Modifier) {
     var speaking by remember { mutableStateOf(false) }
     var tts by remember { mutableStateOf<TextToSpeech?>(null) }
 
-    DisposableEffect(Unit) {
-        val engine = TextToSpeech(context) { status ->
-            if (status == TextToSpeech.SUCCESS) tts?.language = Locale("pl", "PL")
+    DisposableEffect(settings.narratorProfile) {
+        lateinit var engine: TextToSpeech
+        engine = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) PolishSpeech.configure(engine, settings.narratorProfile)
         }
         tts = engine
         onDispose { engine.stop(); engine.shutdown() }
@@ -233,8 +236,12 @@ private fun BriefScreen(settings: UserSettings, modifier: Modifier = Modifier) {
                                     if (speaking) {
                                         engine.stop(); speaking = false
                                     } else {
-                                        engine.speak(briefingText(articles), TextToSpeech.QUEUE_FLUSH, null, "puls512_brief")
-                                        speaking = true
+                                        speaking = PolishSpeech.speak(
+                                            engine,
+                                            PolishSpeech.briefingText(articles),
+                                            settings.narratorProfile,
+                                            "puls512_brief"
+                                        )
                                     }
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = Ice, contentColor = Ink),
@@ -288,6 +295,10 @@ private fun ArticleCard(article: Article) {
             }
             Spacer(Modifier.height(10.dp))
             Text(article.title, fontWeight = FontWeight.Bold, fontSize = 18.sp, lineHeight = 23.sp)
+            if (article.translatedToPolish) {
+                Spacer(Modifier.height(5.dp))
+                Text("Przetłumaczono na język polski", color = Ice, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            }
             Spacer(Modifier.height(8.dp))
             Text(article.summary, color = Muted, fontSize = 14.sp, lineHeight = 20.sp, maxLines = 4, overflow = TextOverflow.Ellipsis)
             if (article.whyItMatters.isNotBlank()) {
@@ -304,17 +315,28 @@ private fun ArticleCard(article: Article) {
             Text(article.verificationReason, color = verificationColor(article.verificationStatus), fontSize = 11.sp, lineHeight = 16.sp)
             if (article.sources.isNotEmpty()) {
                 Spacer(Modifier.height(12.dp))
-                Text("ŹRÓDŁA (${article.sources.size})", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                article.sources.take(3).forEach { source ->
-                    Text(
-                        "${if (source.primary) "◆" else "↗"}  ${source.name}",
-                        color = if (source.primary) Ice else Mint,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 7.dp).clickable(enabled = source.url.isNotBlank()) {
-                            runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(source.url))) }
+                Text("ORYGINALNE ŹRÓDŁA (${article.sources.size})", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                article.sources.forEach { source ->
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(top = 9.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(SurfaceRaised)
+                            .clickable(enabled = source.url.isNotBlank()) {
+                                runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(source.url))) }
+                            }
+                            .padding(10.dp)
+                    ) {
+                        Text(
+                            "${if (source.primary) "◆" else "↗"}  ${source.name} — otwórz artykuł",
+                            color = if (source.primary) Ice else Mint,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        if (source.originalTitle.isNotBlank()) {
+                            Spacer(Modifier.height(4.dp))
+                            Text(source.originalTitle, color = Muted, fontSize = 11.sp, lineHeight = 15.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                         }
-                    )
+                    }
                 }
             }
         }
@@ -338,6 +360,24 @@ private fun PlanScreen(settings: UserSettings, onChange: (UserSettings) -> Unit,
                 TimeCard("WIECZORNY PULS", "Najważniejsze wydarzenia całego dnia", settings.eveningEnabled, settings.eveningHour, settings.eveningMinute,
                     onToggle = { onChange(settings.copy(eveningEnabled = it)) },
                     onTime = { h, m -> onChange(settings.copy(eveningHour = h, eveningMinute = m)) })
+                Spacer(Modifier.height(28.dp))
+                SectionTitle("AUTOMATYCZNY ODSŁUCH", "O wybranej godzinie telefon przeczyta briefing po polsku.")
+                Spacer(Modifier.height(12.dp))
+                Card(colors = CardDefaults.cardColors(containerColor = Surface), shape = RoundedCornerShape(20.dp)) {
+                    Row(Modifier.fillMaxWidth().padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("Czytaj wiadomości automatycznie", fontWeight = FontWeight.Bold)
+                            Spacer(Modifier.height(4.dp))
+                            Text("Godziny ustawiasz powyżej. Telefon pokaże też powiadomienie.", color = Muted, fontSize = 12.sp, lineHeight = 17.sp)
+                        }
+                        Switch(checked = settings.autoReadEnabled, onCheckedChange = { onChange(settings.copy(autoReadEnabled = it)) })
+                    }
+                }
+                Spacer(Modifier.height(28.dp))
+                NarratorSelector(
+                    selected = settings.narratorProfile,
+                    onSelected = { onChange(settings.copy(narratorProfile = it)) }
+                )
                 Spacer(Modifier.height(28.dp))
                 SectionTitle("ZAKRES WIADOMOŚCI", "Zalecamy co najmniej Polskę, Europę i Świat.")
                 Spacer(Modifier.height(10.dp))
@@ -395,6 +435,44 @@ private fun PlanScreen(settings: UserSettings, onChange: (UserSettings) -> Unit,
             }
         }
     }
+}
+
+@Composable
+private fun NarratorSelector(selected: NarratorProfile, onSelected: (NarratorProfile) -> Unit) {
+    val context = LocalContext.current
+    SectionTitle("POLSKI LEKTOR", "Wybierz głos i odsłuchaj próbkę przed zapisaniem.")
+    Spacer(Modifier.height(12.dp))
+    NarratorProfile.entries.forEach { profile ->
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                .clickable { onSelected(profile) },
+            colors = CardDefaults.cardColors(containerColor = if (selected == profile) SurfaceRaised else Surface),
+            shape = RoundedCornerShape(18.dp)
+        ) {
+            Row(Modifier.fillMaxWidth().padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier.size(30.dp).clip(CircleShape)
+                        .background(if (selected == profile) Ice else Border),
+                    contentAlignment = Alignment.Center
+                ) { Text(if (selected == profile) "✓" else "♪", color = Ink, fontWeight = FontWeight.Black) }
+                Spacer(Modifier.width(11.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(profile.displayName, fontWeight = FontWeight.Bold)
+                    Text("${profile.genderLabel} • ${profile.description}", color = Muted, fontSize = 11.sp)
+                }
+                OutlinedButton(onClick = { PolishSpeech.preview(context, profile) }) {
+                    Text("Próbka")
+                }
+            }
+        }
+    }
+    Spacer(Modifier.height(6.dp))
+    Text(
+        "Aplikacja korzysta z polskich głosów zainstalowanych w telefonie. Jeśli urządzenie ma mniej głosów, profile nadal różnią się barwą i tempem.",
+        color = Muted,
+        fontSize = 11.sp,
+        lineHeight = 16.sp
+    )
 }
 
 @Composable
@@ -558,14 +636,6 @@ private fun greeting(): String {
 }
 
 private fun estimateMinutes(articles: List<Article>): Int = (articles.size / 2 + 1).coerceAtLeast(1)
-
-private fun briefingText(articles: List<Article>): String = buildString {
-    append("Oto najważniejsze informacje przygotowane przez PULS 512. ")
-    articles.forEachIndexed { index, article ->
-        append("Wiadomość ${index + 1}. Status: ${article.verificationStatus.label}. ${article.title}. ${article.summary}. ${article.whyItMatters}. ")
-    }
-    append("To wszystko w tym briefingu.")
-}
 
 private fun verificationColor(status: VerificationStatus): Color = when (status) {
     VerificationStatus.CONFIRMED -> Mint

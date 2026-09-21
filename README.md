@@ -1,4 +1,4 @@
-# PULS 512 — beta v0.2
+# PULS 512 — beta v1
 
 **Twój świat. Dwa razy dziennie.**
 
@@ -16,7 +16,10 @@ PULS 512 to aplikacja Android przygotowująca krótki, weryfikowany briefing z w
 - potwierdzenie przez oficjalne dane albo co najmniej dwa niezależne źródła;
 - jawny powód oceny, liczba źródeł i sekcja „Dlaczego to ważne”;
 - otwieranie oryginalnego artykułu;
-- czytanie briefingu polskim głosem systemowym Androida;
+- zachowanie oryginalnego tytułu i bezpośredniego linku do każdej wykorzystanej publikacji;
+- automatyczne tłumaczenie zagranicznych wiadomości na język polski bez usuwania oryginału;
+- cztery profile polskiego lektora: Anna, Zofia, Marek i Piotr, każdy z próbką głosu;
+- automatyczne czytanie briefingu o godzinach wybranych przez użytkownika;
 - powiadomienia oraz ponowne planowanie po restarcie telefonu;
 - uwagi tekstowe kierowane na `lab512512@gmail.com`;
 - nagrywanie uwagi głosowej i dodawanie pliku do wiadomości e-mail.
@@ -42,6 +45,8 @@ Szczegóły: `backend/README.md`.
 3. Klucza API AI nie wolno umieszczać w aplikacji ani w repozytorium. Dołączony backend odczytuje go wyłącznie ze zmiennej środowiskowej.
 4. Na Androidzie 12+ dokładność alarmu zależy od przyznanego uprawnienia do dokładnych alarmów i ustawień oszczędzania baterii. Bez niego system może dostarczyć raport kilka–kilkanaście minut później.
 5. Wysyłka opinii otwiera klienta pocztowego użytkownika. Użytkownik zatwierdza wysłanie wiadomości i nagrania.
+6. Przy pierwszym tłumaczeniu danego języka Android pobiera model tłumaczeniowy. Wymaga to internetu i może chwilę potrwać; późniejsze tłumaczenia działają na urządzeniu.
+7. Profile lektorów wykorzystują polskie głosy zainstalowane w systemie Android. Ich dokładna barwa zależy od producenta telefonu i używanego silnika syntezy mowy.
 
 ## Szybki start na GitHub
 
@@ -94,4 +99,4 @@ Backend powinien co najmniej:
 - font: systemowy sans, duże nagłówki w odmianie Black/Bold.
 
 Pakiet: `pl.lab512.puls512`  
-Wersja: `0.2.0-beta`
+Wersja: `1.0.0-beta`

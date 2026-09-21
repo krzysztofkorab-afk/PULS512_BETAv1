@@ -50,9 +50,10 @@ class NewsRepository {
     fun fetchBriefing(categories: Set<NewsCategory>, limit: Int, verifiedOnly: Boolean = true): List<Article> {
         if (BuildConfig.API_BASE_URL.isNotBlank()) {
             val remote = runCatching { BackendClient(BuildConfig.API_BASE_URL).fetch(categories, limit, verifiedOnly) }.getOrNull()
-            if (!remote.isNullOrEmpty()) return remote
+            if (!remote.isNullOrEmpty()) return PolishTranslator().translateAll(remote)
         }
-        return fetchLocally(categories, limit, verifiedOnly)
+        val local = fetchLocally(categories, limit, verifiedOnly)
+        return PolishTranslator().translateAll(local)
     }
 
     private fun fetchLocally(categories: Set<NewsCategory>, limit: Int, verifiedOnly: Boolean): List<Article> {
@@ -73,7 +74,14 @@ class NewsRepository {
             val matches = unused.filter { isSimilar(seed.article.title, it.article.title) }
             unused.removeAll(matches.toSet())
             val cluster = listOf(seed) + matches
-            val sources = cluster.map { SourceRef(it.article.source, it.article.url, it.kind in setOf(FeedKind.OFFICIAL_DATA, FeedKind.OFFICIAL_STATEMENT)) }
+            val sources = cluster.map {
+                SourceRef(
+                    it.article.source,
+                    it.article.url,
+                    it.kind in setOf(FeedKind.OFFICIAL_DATA, FeedKind.OFFICIAL_STATEMENT),
+                    it.article.originalTitle.ifBlank { it.article.title }
+                )
+            }
                 .distinctBy { it.name }
             val kinds = cluster.map { it.kind }.toSet()
             val status = when {
@@ -107,7 +115,7 @@ class NewsRepository {
         val now = System.currentTimeMillis()
         val confirmed = VerificationStatus.CONFIRMED
         val samples = listOf(
-            Article("PULS 512 sprawdza wiadomości przed publikacją", "Wersja 0.2 grupuje informacje o tym samym wydarzeniu, porównuje źródła i domyślnie ukrywa materiały bez potwierdzenia.", "", "PULS 512", NewsCategory.POLSKA, now, 5, verificationStatus = confirmed, verificationReason = "Zasada działania aplikacji.", whyItMatters = "W briefingu jest mniej wiadomości, ale każda ma jawny poziom wiarygodności."),
+            Article("PULS 512 sprawdza wiadomości przed publikacją", "Wersja 1 grupuje informacje o tym samym wydarzeniu, porównuje źródła i domyślnie ukrywa materiały bez potwierdzenia.", "", "PULS 512", NewsCategory.POLSKA, now, 5, verificationStatus = confirmed, verificationReason = "Zasada działania aplikacji.", whyItMatters = "W briefingu jest mniej wiadomości, ale każda ma jawny poziom wiarygodności."),
             Article("Każda informacja pokazuje podstawę oceny", "Zielony status oznacza dane pierwotne albo zgodność co najmniej dwóch niezależnych źródeł. Komunikaty jednostronne są wyraźnie oznaczane.", "", "PULS 512", NewsCategory.EUROPA, now - 60_000, 5, verificationStatus = confirmed, verificationReason = "Zasada działania aplikacji.", whyItMatters = "Użytkownik widzi nie tylko treść, lecz także podstawę jej publikacji."),
             Article("Podsumowanie AI korzysta wyłącznie z zebranego materiału", "Po podłączeniu backendu model nie wyszukuje faktów samodzielnie. Tworzy krótki tekst wyłącznie z przekazanych artykułów i zachowuje ich linki.", "", "PULS 512", NewsCategory.TECHNOLOGIA, now - 120_000, 5, verificationStatus = confirmed, verificationReason = "Zasada działania backendu.", whyItMatters = "Ogranicza to ryzyko dopisywania przez model informacji, których nie ma w źródłach.")
         )
@@ -119,7 +127,7 @@ class NewsRepository {
             connectTimeout = 7_000
             readTimeout = 9_000
             instanceFollowRedirects = true
-            setRequestProperty("User-Agent", "PULS512/0.2 (+https://lab512.pl)")
+            setRequestProperty("User-Agent", "PULS512/1.0 (+https://lab512.pl)")
             setRequestProperty("Accept", "application/rss+xml, application/atom+xml, application/xml, text/xml")
         }
         return try {
@@ -171,7 +179,9 @@ class NewsRepository {
                             category = feed.category,
                             publishedAt = parseDate(date),
                             trustWeight = feed.trustWeight,
-                            sources = listOf(SourceRef(feed.source, link.trim(), feed.kind in setOf(FeedKind.OFFICIAL_DATA, FeedKind.OFFICIAL_STATEMENT)))
+                            sources = listOf(SourceRef(feed.source, link.trim(), feed.kind in setOf(FeedKind.OFFICIAL_DATA, FeedKind.OFFICIAL_STATEMENT), cleanTitle)),
+                            originalTitle = cleanTitle,
+                            originalSummary = clean(description, 360).ifBlank { "Otwórz źródło, aby przeczytać szczegóły." }
                         )
                         result += Candidate(article, feed.kind)
                     }
